@@ -5,12 +5,13 @@ namespace CantinaManager.Models
 {
     public class User : IdentityUser
     {
-        // Extra profile fields
         public string FullName { get; set; } = string.Empty;
         public string? ProfilePictureUrl { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation property: tasks assigned to the user
-        public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
+        public virtual ICollection<UserTask> UserTasks { get; set; } = new List<UserTask>();
+        public ICollection<IdentityUserRole<string>> UserRoles { get; set; } = new List<IdentityUserRole<string>>();
+
+
     }
 }

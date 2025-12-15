@@ -1,6 +1,11 @@
+using CantinaManager.Data;
+using CantinaManager.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +43,16 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// Add EF Core InMemory DB
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseInMemoryDatabase("CantinaDb"));
+
+// Add Identity
+builder.Services.AddIdentity<User, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+// JWT authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -48,10 +63,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
 
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "TestIssuer",
+            ValidAudience = builder.Configuration["Jwt:Audience"] ?? "TestAudience",
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "SuperSecretKey123456")
             )
         };
     });
@@ -60,6 +75,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// Swagger in development
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

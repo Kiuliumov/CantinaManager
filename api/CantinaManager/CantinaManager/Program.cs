@@ -1,6 +1,9 @@
 using CantinaManager.Data;
 using CantinaManager.Models;
 using CantinaManager.Services;
+using CantinaManager.Services.EmailService;
+using CantinaManager.Services.TokenService;
+using CantinaManager.Services.Verification;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -71,6 +74,8 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ITokenService, JwtService>();
 builder.Services.AddScoped<IRepository, Repository>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<UserVerificationService>();
 
 var app = builder.Build();
 

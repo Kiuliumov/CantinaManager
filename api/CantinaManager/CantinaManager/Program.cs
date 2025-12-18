@@ -1,5 +1,6 @@
 using CantinaManager.Data;
 using CantinaManager.Models;
+using CantinaManager.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -67,6 +68,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<ITokenService, JwtService>();
+builder.Services.AddScoped<IRepository, Repository>();
 
 var app = builder.Build();
 

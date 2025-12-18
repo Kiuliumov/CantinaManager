@@ -15,7 +15,6 @@ namespace CantinaManager.Controllers
             _repository = repository;
         }
 
-        // GET: api/users
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -34,7 +33,6 @@ namespace CantinaManager.Controllers
             return Ok(result);
         }
 
-        // GET: api/users/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
@@ -54,7 +52,6 @@ namespace CantinaManager.Controllers
             });
         }
 
-        // POST: api/users
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] User user)
         {
@@ -66,7 +63,6 @@ namespace CantinaManager.Controllers
             return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
         }
 
-        // PUT: api/users/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] User updatedUser)
         {
@@ -84,7 +80,6 @@ namespace CantinaManager.Controllers
             return NoContent();
         }
 
-        // DELETE: api/users/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {

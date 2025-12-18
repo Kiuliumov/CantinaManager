@@ -1,6 +1,6 @@
 ﻿using CantinaManager.Models;
 
-namespace CantinaManager.Services
+namespace CantinaManager.Services.TokenService
 {
     public interface ITokenService
     {

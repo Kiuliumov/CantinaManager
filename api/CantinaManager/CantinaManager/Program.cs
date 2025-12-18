@@ -46,7 +46,6 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// CORS for frontend connection
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
@@ -85,7 +84,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// Register your services
 builder.Services.AddScoped<ITokenService, JwtService>();
 builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -93,7 +91,6 @@ builder.Services.AddScoped<UserVerificationService>();
 
 var app = builder.Build();
 
-// Middleware pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -106,7 +103,6 @@ app.UseCors("FrontendPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// If you have a request logging middleware
 app.UseRequestLogging();
 
 app.MapControllers();

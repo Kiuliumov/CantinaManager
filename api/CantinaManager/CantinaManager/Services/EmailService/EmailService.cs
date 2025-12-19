@@ -14,11 +14,11 @@ namespace CantinaManager.Services
 
         public async Task SendEmailAsync(string toEmail, string subject, string htmlMessage)
         {
-            var smtpHost = _config["Email:SmtpHost"];
-            var smtpPort = int.Parse(_config["Email:SmtpPort"] ?? "587");
-            var smtpUser = _config["Email:SmtpUser"];
-            var smtpPass = _config["Email:SmtpPass"];
-            var fromEmail = _config["Email:From"];
+            var smtpHost = _config["EMAIL_SMTPHOST"];
+            var smtpPort = int.Parse(_config["EMAIL_SMTPPORT"] ?? "587");
+            var smtpUser = _config["EMAIL_SMTPUSER"];
+            var smtpPass = _config["EMAIL_SMTPPASS"];
+            var fromEmail = _config["EMAIL_FROM"];
 
             using var client = new SmtpClient(smtpHost, smtpPort)
             {

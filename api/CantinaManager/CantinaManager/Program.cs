@@ -6,13 +6,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using DotNetEnv;
 using System.Text;
 
-DotNetEnv.Env.Load();
 
+Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddEnvironmentVariables();
+
+Console.WriteLine(builder.Configuration["JWT_KEY"]);
 builder.Services.AddControllers();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -54,8 +59,10 @@ builder.Services.AddCors(options =>
     });
 });
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+                       ?? "Data Source=CantinaDb.sqlite";
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseInMemoryDatabase("CantinaDb"));
+    options.UseSqlite(connectionString));
 
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
@@ -64,17 +71,16 @@ builder.Services.AddIdentity<User, IdentityRole>()
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        var key = builder.Configuration["JWT_KEY"] ?? throw new InvalidOperationException("JWT_KEY is missing");
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "TestIssuer",
-            ValidAudience = builder.Configuration["Jwt:Audience"] ?? "TestAudience",
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "SuperSecretKey123456")
-            )
+            ValidIssuer = builder.Configuration["JWT_ISSUER"] ?? "TestIssuer",
+            ValidAudience = builder.Configuration["JWT_AUDIENCE"] ?? "TestAudience",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
         };
     });
 
@@ -97,6 +103,16 @@ app.UseHttpsRedirection();
 app.UseCors("FrontendPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Logging custom middleware
 app.UseRequestLogging();
+
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 app.Run();

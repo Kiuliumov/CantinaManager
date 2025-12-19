@@ -1,6 +1,6 @@
 ﻿using CantinaManager.Data;
 using CantinaManager.Models;
-using CantinaManager.Services.TokenService;
+using CantinaManager.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 

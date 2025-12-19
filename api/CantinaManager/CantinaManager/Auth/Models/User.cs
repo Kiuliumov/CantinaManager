@@ -13,7 +13,7 @@ namespace CantinaManager.Models
         
         public virtual ICollection<UserTask> UserTasks { get; set; } = new List<UserTask>();
         
-        public ICollection<IdentityUserRole<string>> UserRoles { get; set; } = new List<IdentityUserRole<string>>();
+        public virtual ICollection<UserRole> Roles { get; set; } = new List<UserRole>();
 
     }
 }

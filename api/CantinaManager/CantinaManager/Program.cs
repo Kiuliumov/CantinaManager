@@ -90,8 +90,6 @@ builder.Services.AddScoped<ITokenService, JwtService>();
 
 builder.Services.AddScoped<ITokenService, JwtService>();
 builder.Services.AddScoped<IRepository, Repository>();
-builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<UserVerificationService>();
 
 var app = builder.Build();
 

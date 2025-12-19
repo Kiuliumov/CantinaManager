@@ -1,4 +1,5 @@
-﻿using CantinaManager.Models;
+﻿using CantinaManager.Data;
+using CantinaManager.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -14,13 +15,15 @@ namespace CantinaManager.Services
     public class JwtService : ITokenService
     {
         private readonly IConfiguration _config;
+        private readonly AppDbContext _context;
 
-        public JwtService(IConfiguration config)
+        public JwtService(IConfiguration config, AppDbContext context)
         {
             _config = config;
+            _context = context;
         }
 
-        public Task<string> GenerateAccessTokenAsync(User user)
+        public async Task<string> GenerateAccessTokenAsync(User user)
         {
             var claims = new List<Claim>
             {
@@ -29,27 +32,28 @@ namespace CantinaManager.Services
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            if (user.UserRoles != null && user.UserRoles.Any())
+            var roles = _context.UserRoles
+                                .Where(r => r.UserId == user.Id)
+                                .Select(r => r.RoleName)
+                                .ToList();
+
+            foreach (var roleName in roles)
             {
-                foreach (var role in user.UserRoles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, role.RoleId)); 
-                }
+                claims.Add(new Claim(ClaimTypes.Role, roleName));
             }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT_KEY"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
+                issuer: _config["JWT_ISSUER"],
+                audience: _config["JWT_AUDIENCE"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(int.Parse(_config["Jwt:ExpireMinutes"]!)),
+                expires: DateTime.UtcNow.AddMinutes(int.Parse(_config["JWT_EXPIREMINUTES"]!)),
                 signingCredentials: creds
             );
 
-            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-            return Task.FromResult(tokenString);
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         public string GenerateRefreshToken()

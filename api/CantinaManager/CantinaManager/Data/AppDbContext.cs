@@ -1,8 +1,6 @@
 ﻿using CantinaManager.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace CantinaManager.Data
 {
@@ -13,6 +11,7 @@ namespace CantinaManager.Data
 
         public DbSet<UserTask> UserTasks => Set<UserTask>();
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+        public DbSet<UserRole> UserRoles => Set<UserRole>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -23,8 +22,16 @@ namespace CantinaManager.Data
                 .WithMany(u => u.UserTasks)
                 .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<UserRole>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.Roles)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<UserRole>()
+                .HasIndex(r => new { r.UserId, r.RoleName })
+                .IsUnique();
         }
-
     }
-
 }
